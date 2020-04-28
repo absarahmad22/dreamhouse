@@ -14,6 +14,7 @@
                     <column>Property__c.Price__c</column>
                 </chartSummary>
                 <componentType>Metric</componentType>
+                <groupingSortProperties/>
                 <header>Total Portfolio</header>
                 <indicatorBreakpoint1>5000000.0</indicatorBreakpoint1>
                 <indicatorBreakpoint2>1.0E7</indicatorBreakpoint2>
@@ -21,6 +22,7 @@
                 <indicatorLowColor>#C23934</indicatorLowColor>
                 <indicatorMiddleColor>#FFB75D</indicatorMiddleColor>
                 <report>DreamHouse_Reports/Properties_by_Broker</report>
+                <showRange>false</showRange>
             </dashboardComponent>
             <rowIndex>0</rowIndex>
             <rowSpan>3</rowSpan>
@@ -41,6 +43,7 @@
                 <enableHover>false</enableHover>
                 <expandOthers>true</expandOthers>
                 <groupingColumn>BucketField_33803839</groupingColumn>
+                <groupingSortProperties/>
                 <header>Portfolio Health</header>
                 <legendPosition>Right</legendPosition>
                 <report>DreamHouse_Reports/Portfolio_Health</report>
@@ -70,6 +73,7 @@
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
                 <groupingColumn>CUST_NAME</groupingColumn>
+                <groupingSortProperties/>
                 <header>Days on Market</header>
                 <legendPosition>Bottom</legendPosition>
                 <report>DreamHouse_Reports/Days_on_Market</report>
@@ -99,6 +103,7 @@
                 <enableHover>false</enableHover>
                 <expandOthers>false</expandOthers>
                 <groupingColumn>FK_NAME</groupingColumn>
+                <groupingSortProperties/>
                 <header>Properties by Broker</header>
                 <legendPosition>Bottom</legendPosition>
                 <report>DreamHouse_Reports/Properties_by_Broker</report>
@@ -115,7 +120,7 @@
     </dashboardGridLayout>
     <dashboardType>SpecifiedUser</dashboardType>
     <isGridLayout>true</isGridLayout>
-    <runningUser>cc@spring18.org</runningUser>
+    <runningUser>cicd.tier1@gmail.com</runningUser>
     <textColor>#000000</textColor>
     <title>My Dashboard</title>
     <titleColor>#000000</titleColor>
