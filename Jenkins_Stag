@@ -1,0 +1,136 @@
+#!groovy
+
+import groovy.json.JsonSlurperClassic
+
+node {
+
+    def SF_CONSUMER_KEY          ="3MVG97quAmFZJfVy5VgSD0VfwcdBR1ufeX4ULL919TZu4fshfI_UO0yCjCLG2v4azJSvhEnOOhOz8stblhaZC";
+    def SF_USERNAME              ="partialcopy@gmail.com";
+    def SERVER_KEY_CREDENTALS_ID ="f45a0e76-ee17-4f39-addb-fce83d2b09ed";
+    def TEST_LEVEL               ="RunLocalTests";
+    def SF_INSTANCE_URL          ="https://login.salesforce.com";
+
+    def toolbelt = tool "toolbelt";
+
+	println "printing information of env variable";
+	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
+	print "SF_USERNAME :${SF_USERNAME}";
+	print "SERVER_KEY_CREDENTALS_ID :${SERVER_KEY_CREDENTALS_ID}";
+	print "TEST_LEVEL :${TEST_LEVEL}";
+	print "SF_INSTANCE_URL :${SF_INSTANCE_URL}";
+
+    // -------------------------------------------------------------------------
+    // Check out code from source control.
+    // -------------------------------------------------------------------------
+	
+    stage("checkout source") {
+        checkout scm
+    }
+
+    // -------------------------------------------------------------------------
+    // Run all the enclosed stages with access to the Salesforce
+    // JWT key credentials.
+    // -------------------------------------------------------------------------
+
+	
+	withEnv(["HOME=${env.WORKSPACE}"]) {
+		
+	withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: "jwt_key_file")]) {
+            	/*Step-1: Authorize Org*/
+		stage("Authorize Org") {
+              	 rc = command  "\"${toolbelt}\" force:org:list"
+              	 rc = command  "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
+                 rc = command  "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --username ${SF_USERNAME} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --setalias HubOrg";
+                 if (rc != 0) {
+                    error "Salesforce authorization failed."
+                 }
+            }
+
+
+            
+            /* Step:2 Convert to the Org Metadata*/
+
+            stage("Convert to Org Metadata"){
+                 rc = bat returnStatus: true, script: "\"${toolbelt}\" force:source:convert -r force-app -d import/force-app -w -1"
+                if (rc != 0) {
+                    error "Convert source code to metadata failed."
+                }
+            }
+
+            /*Step:3 Deploy Code to Org*/
+
+            stage("Deploy Code to target org"){
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d import/force-app/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
+                if (rc != 0) {
+                    error "Salesforce deployment failed in the org."
+                }
+            }
+
+             /*Step:4 Deployement Status in Org*/
+
+             stage("Deployment Status Report"){
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
+                if (rc != 0) {
+                    error "Salesforce test scratch org deletion failed."
+                }
+            }
+
+            
+            /*Step:5 Run Unit Testing the Org*/
+
+            /*stage("Run Tests In Org") {
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:apex:test:run --targetusername ${SF_USERNAME} --wait 10 -r human --resultformat tap --codecoverage --testlevel ${TEST_LEVEL}"
+                if (rc != 0) {
+                   error "Salesforce unit test run in test scratch org failed."
+                }
+            }*/
+
+            stage("Run Test in Org with information"){
+                rmsg = commandOutput "\"${toolbelt}\" force:apex:test:run --targetusername ${SF_USERNAME} --wait 10 -r human --resultformat tap --codecoverage --testlevel ${TEST_LEVEL} --json";
+            }
+
+            def runId = rmsg.result.summary.testRunId;
+
+            println "Test Run Id :${runId}";
+
+            /*Step:6 Report of test */
+            stage("Test Report in Org") {
+                rmsg = commandOutput "\"${toolbelt}\" force:apex:test:report --targetusername ${SF_USERNAME} -i ${runId} --wait 10 -r human --codecoverage --json"
+            }
+
+            def outcome = rmsg.result.summary.outcome;
+            def passRate = rmsg.result.summary.passRate;
+            def failRate = rmsg.result.summary.failRate;
+
+            if(outcome == "Failed"){
+                error "Unit testing not completed please do the test again \n Pass Rate = ${passRate} \n Fail Rate = ${failRate}";
+            }else{
+                print "Unit Testing is successfully completed with the Pass Rate = ${passRate} \n Fail Rate = ${failRate} \n outcome = ${outcome}";
+            }
+		}
+	}
+}
+
+def command(script) {
+    if (isUnix()) {
+        return sh(returnStatus: true, script: script);
+    } else {
+        return bat(returnStatus: true, script: script);
+    }
+}
+
+def commandOutput(script) {
+    if (isUnix()) {
+        rmsg =  sh(returnStdout: true, script: script);
+    } else {
+        rmsg =  bat(returnStdout: true, script: script);
+        rmsg = rmsg.readLines().drop(1).join(" ");
+    }
+    def index = rmsg.indexOf('json') + 4;
+    def len   = rmsg.length();
+    def json  = rmsg.substring(index,len);
+    println json;
+    def jsonSlurper = new JsonSlurperClassic();
+    def response = jsonSlurper.parseText(json);
+    return response;
+}
