@@ -5,7 +5,7 @@ import groovy.json.JsonSlurperClassic
 node {
 
     def SF_CONSUMER_KEY          ="3MVG97quAmFZJfVwMou_05IMU5wbKTzfYxQlvr76WufEXFFwy7y1pmd67JlH8ejD_O8ut.kuugtFL59IXPqah";
-    def SF_USERNAME              ="partialcopy@gmail.com";
+    def SF_USERNAME              ="livecopy@gmail.com";
     def SERVER_KEY_CREDENTALS_ID ="e2b5aaa9-db74-4379-82f3-84837b035c62";
     def TEST_LEVEL               ="RunLocalTests";
     def SF_INSTANCE_URL          ="https://login.salesforce.com";
