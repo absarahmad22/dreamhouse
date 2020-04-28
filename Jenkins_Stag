@@ -51,7 +51,7 @@ node {
             /* Step:2 Convert to the Org Metadata*/
 
             stage("Convert to Org Metadata"){
-                 rc = bat returnStatus: true, script: "\"${toolbelt}\" force:source:convert -r force-app -d import/force-app -w -1"
+                 rc = bat returnStatus: true, script: "\"${toolbelt}\" force:source:convert -r force-app -d import/force-app"
                 if (rc != 0) {
                     error "Convert source code to metadata failed."
                 }
