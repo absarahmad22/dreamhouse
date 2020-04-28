@@ -110,7 +110,7 @@ node {
             /*Stage 6 Deploy Code to Org*/
 
             stage('Deploy Code'){
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d import/force-app/. -u ${SF_USERNAME}"
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d import/force-app/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
                     error 'Salesforce Code Deployment failed.'
                 }
