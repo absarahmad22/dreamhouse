@@ -60,7 +60,7 @@ node {
             /*Step:3 Deploy Code to Org*/
 
             stage("Deploy Code to target org"){
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d import/force-app/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1 -c"
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d import/force-app/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
                     error "Salesforce deployment failed in the org."
                 }
