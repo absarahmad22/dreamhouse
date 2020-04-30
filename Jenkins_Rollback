@@ -5,6 +5,7 @@ import groovy.json.JsonSlurperClassic
 node {
 	
 	println  "Envrnmenet Name :${params.Environment}";
+	println  "Envrnmenet Name :${params.Build}";
   
 }
 
