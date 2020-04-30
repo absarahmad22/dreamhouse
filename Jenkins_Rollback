@@ -15,13 +15,15 @@ node {
 	def buildToRollback;
 	dirName = dirName.replace(JOB_NAME,'');
 	
+	def toolbelt = tool "toolbelt";
+	
 
 	if(evnRollBack == 'QA'){
         SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_QA;
         SF_USERNAME              = env.SF_USERNAME_QA;
         SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_QA;
         SF_INSTANCE_URL          = env.SF_INSTANCE_URL_QA;
-		buildToRollback          = "${dirName}QA Org\\build\\force-app_v${params.Build}"
+		buildToRollback          = "${dirName}Pipeline Project\\build\\force-app_v${params.Build}"
 	}else if(evnRollBack == 'Stage'){
         SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_STAGE;
         SF_USERNAME              = env.SF_USERNAME_STAGE;
@@ -40,7 +42,46 @@ node {
 	println  "Envrnmenet Name :${params.Build}";
     println dirName;
 	println buildToRollback;
-  
+	
+		withEnv(["HOME=${env.WORKSPACE}"]) {
+		
+		withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'jwt_key_file')]) {
+            
+            /*Step-1: Authorize DevHub Org*/
+
+			stage('Authorize DevHub') {
+
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:org:list"
+
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
+
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --username ${SF_USERNAME} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --setalias HubOrg";
+                if (rc != 0) {
+                    error 'Salesforce dev hub org authorization failed.'
+                }
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:org:list"
+            }
+
+
+            /*Stage 6 Deploy Code to Org*/
+
+            stage('Deploy Code'){
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d ${buildToRollback}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
+                if (rc != 0) {
+                    error 'Salesforce Code Deployment failed.'
+                }
+            }
+
+             /*Stage 6 Deployement Status in Org*/
+
+             stage('Deploy Status Report'){
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
+                if (rc != 0) {
+                    error 'Unable to get the deployment status.'
+                }
+            }		
+		}
+	}
 }
 
 def command(script) {
