@@ -23,19 +23,19 @@ node {
         SF_USERNAME              = env.SF_USERNAME_QA;
         SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_QA;
         SF_INSTANCE_URL          = env.SF_INSTANCE_URL_QA;
-		buildToRollback          = "${dirName}Pipeline Project\\build\\force-app_v${params.Build}\\."
+		buildToRollback          = "${dirName}Pipeline Project\\build\\force-app_v_${params.Build}\\."
 	}else if(evnRollBack == 'Stage'){
         SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_STAGE;
         SF_USERNAME              = env.SF_USERNAME_STAGE;
         SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_STAGE;
         SF_INSTANCE_URL          = env.SF_INSTANCE_URL_STAGE;	
-		buildToRollback          = "${dirName}Stage Org\\build\\force-app_v${params.Build}\\."
+		buildToRollback          = "${dirName}Stage Org\\build\\force-app_v_${params.Build}\\."
 	}else if(evnRollBack == 'Live'){
 	    SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_LIVE;
         SF_USERNAME              = env.SF_USERNAME_LIVE;
         SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_LIVE;
         SF_INSTANCE_URL          = env.SF_INSTANCE_URL_LIVE;
-		buildToRollback          = "${dirName}QA Org\\build\\force-app_v${params.Build}\\."
+		buildToRollback          = "${dirName}QA Org\\build\\force-app_v_${params.Build}\\."
 	}
 	
 	println  "Envrnmenet Name :${params.Environment}";
