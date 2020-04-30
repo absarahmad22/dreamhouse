@@ -1,0 +1,33 @@
+#!groovy
+
+import groovy.json.JsonSlurperClassic
+
+node {
+	
+	println  "Envrnmenet Name :${params.Environment}";
+  
+}
+
+def command(script) {
+    if (isUnix()) {
+        return sh(returnStatus: true, script: script);
+    } else {
+        return bat(returnStatus: true, script: script);
+    }
+}
+
+def commandOutput(script) {
+    if (isUnix()) {
+        rmsg =  sh(returnStdout: true, script: script);
+    } else {
+        rmsg =  bat(returnStdout: true, script: script);
+        rmsg = rmsg.readLines().drop(1).join(" ");
+    }
+    def index = rmsg.indexOf('json') + 4;
+    def len   = rmsg.length();
+    def json  = rmsg.substring(index,len);
+    println json;
+    def jsonSlurper = new JsonSlurperClassic();
+    def response = jsonSlurper.parseText(json);
+    return response;
+}

@@ -4,11 +4,11 @@ import groovy.json.JsonSlurperClassic
 
 node {
 
-    def SF_CONSUMER_KEY          ="3MVG97quAmFZJfVy5VgSD0VfwcdBR1ufeX4ULL919TZu4fshfI_UO0yCjCLG2v4azJSvhEnOOhOz8stblhaZC";
-    def SF_USERNAME              ="partialcopy@gmail.com";
-    def SERVER_KEY_CREDENTALS_ID ="f45a0e76-ee17-4f39-addb-fce83d2b09ed";
+    def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_STAGE;         //"3MVG97quAmFZJfVy5VgSD0VfwcdBR1ufeX4ULL919TZu4fshfI_UO0yCjCLG2v4azJSvhEnOOhOz8stblhaZC";
+    def SF_USERNAME              = env.SF_USERNAME_STAGE;             //"partialcopy@gmail.com";
+    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_STAGE;//"f45a0e76-ee17-4f39-addb-fce83d2b09ed";
+    def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_STAGE;         //"https://login.salesforce.com";
     def TEST_LEVEL               ="RunLocalTests";
-    def SF_INSTANCE_URL          ="https://login.salesforce.com";
 
     def toolbelt = tool "toolbelt";
 
@@ -22,7 +22,7 @@ node {
     // -------------------------------------------------------------------------
     // Check out code from source control.
     // -------------------------------------------------------------------------
-	
+	X/Y
     stage("checkout source") {
         checkout scm
     }
@@ -48,14 +48,14 @@ node {
 
 
             
-            /* Step:2 Convert to the Org Metadata*/
+            /* Step:2 Convert to the Org Metadata
 
             stage("Convert to Org Metadata"){
                  rc = bat returnStatus: true, script: "\"${toolbelt}\" force:source:convert -r force-app -d import/force-app"
                 if (rc != 0) {
                     error "Convert source code to metadata failed."
                 }
-            }
+            }*/
 
             /*Step:3 Deploy Code to Org*/
 

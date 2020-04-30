@@ -4,11 +4,11 @@ import groovy.json.JsonSlurperClassic
 
 node {
 
-    def SF_CONSUMER_KEY          ="3MVG97quAmFZJfVwMou_05IMU5wbKTzfYxQlvr76WufEXFFwy7y1pmd67JlH8ejD_O8ut.kuugtFL59IXPqah";
-    def SF_USERNAME              ="livecopy@gmail.com";
-    def SERVER_KEY_CREDENTALS_ID ="e2b5aaa9-db74-4379-82f3-84837b035c62";
-    def TEST_LEVEL               ="RunLocalTests";
-    def SF_INSTANCE_URL          ="https://login.salesforce.com";
+    def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_LIVE;         //"3MVG97quAmFZJfVwMou_05IMU5wbKTzfYxQlvr76WufEXFFwy7y1pmd67JlH8ejD_O8ut.kuugtFL59IXPqah";
+    def SF_USERNAME              = env.SF_USERNAME_LIVE;             //"livecopy@gmail.com";
+    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_LIVE;//"e2b5aaa9-db74-4379-82f3-84837b035c62";
+    def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_LIVE;         //"https://login.salesforce.com";
+    def TEST_LEVEL               = "RunLocalTests";
 
     def toolbelt = tool "toolbelt";
 
@@ -27,6 +27,7 @@ node {
         checkout scm
     }
 
+    X/Y;
     // -------------------------------------------------------------------------
     // Run all the enclosed stages with access to the Salesforce
     // JWT key credentials.
@@ -46,7 +47,7 @@ node {
                  }
             }
             
-            /* Step:2 Convert to the Org Metadata*/
+            /* Step:2 Convert to the Org Metadata
 
             stage("Convert to Org Metadata"){
                  rc = command "\"${toolbelt}\" force:source:convert -r force-app -d import/force-app"
@@ -54,6 +55,7 @@ node {
                     error "Convert source code to metadata failed."
                 }
             }
+            */
 
             /*Step:3 Validate First Deploy Code to Org
             * -l  = testLevel

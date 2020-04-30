@@ -4,13 +4,11 @@ import groovy.json.JsonSlurperClassic
 
 node {
 
-    def SF_CONSUMER_KEY= "3MVG97quAmFZJfVwMfTMpWuwoPTJxvx4W9Bn5CQqGpLWtC9Iqjz3oMU6I1WgI6D0WMscLYAgUjtRlNa5BaEsO";//env.SF_CONSUMER_KEY
-    def SF_USERNAME= "cicd.tier1@gmail.com"; //env.SF_USERNAME
-    def SERVER_KEY_CREDENTALS_ID= "dcad7abe-7b25-4a2d-8aba-ab5b4e38cc75";//env.SERVER_KEY_CREDENTALS_ID
+    def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_QA;         // "3MVG97quAmFZJfVwMfTMpWuwoPTJxvx4W9Bn5CQqGpLWtC9Iqjz3oMU6I1WgI6D0WMscLYAgUjtRlNa5BaEsO";//env.SF_CONSUMER_KEY
+    def SF_USERNAME              = env.SF_USERNAME_QA;             // "cicd.tier1@gmail.com"; //env.SF_USERNAME
+    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_QA;// "dcad7abe-7b25-4a2d-8aba-ab5b4e38cc75";//env.SERVER_KEY_CREDENTALS_ID
+    def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_QA;         // env.SF_INSTANCE_URL ?: "https://login.salesforce.com"
     def TEST_LEVEL='RunLocalTests'
-    def PACKAGE_NAME='0Ho1U000000CaUzSAK'
-    def PACKAGE_VERSION
-    def SF_INSTANCE_URL = env.SF_INSTANCE_URL ?: "https://login.salesforce.com"
 
     def toolbelt = tool 'toolbelt'
         
@@ -20,12 +18,11 @@ node {
 	print "SERVER_KEY_CREDENTALS_ID :${SERVER_KEY_CREDENTALS_ID}";
 	print "TEST_LEVEL :${TEST_LEVEL}";
 	print "SF_INSTANCE_URL :${SF_INSTANCE_URL}";
-    print "PACKAGE_NAME :${PACKAGE_NAME}";
 
     // -------------------------------------------------------------------------
     // Check out code from source control.
     // -------------------------------------------------------------------------
-
+X/Y
     stage('checkout source') {
         checkout scm
     }
