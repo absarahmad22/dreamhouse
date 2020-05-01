@@ -47,6 +47,9 @@
     <members>VoiceInput</members>
     <members>VoiceInputCard</members>
     <members>VoiceInputChangeEvent</members>
+	
+	<members>ContactView</members>
+    <members>ContactViewApplication</members>
   </types>
   <types>
     <name>ApexClass</name>
@@ -98,6 +101,9 @@
     <members>SampleDataController</members>
     <members>SlackOpportunityPublisher</members>
     <members>SlackOpportunityPublisherTest</members>
+	
+	<members>ContactController</members>
+    <members>ContactControllerTest</members>
   </types>
   <types>
     <name>ContentAsset</name>
