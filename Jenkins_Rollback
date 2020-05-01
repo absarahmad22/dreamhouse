@@ -23,19 +23,19 @@ node {
         SF_USERNAME              = env.SF_USERNAME_QA;
         SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_QA;
         SF_INSTANCE_URL          = env.SF_INSTANCE_URL_QA;
-		buildToRollback          = "${dirName}Pipeline Project\\build\\force-app_v_${params.Build}\\."
+		buildToRollback          = "${dirName}${env.WORKSPACE_NAME_QA}\\build\\force-app_v_${params.Build}\\."
 	}else if(evnRollBack == 'Stage'){
         SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_STAGE;
         SF_USERNAME              = env.SF_USERNAME_STAGE;
         SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_STAGE;
         SF_INSTANCE_URL          = env.SF_INSTANCE_URL_STAGE;	
-		buildToRollback          = "${dirName}Stage Org\\build\\force-app_v_${params.Build}\\."
+		buildToRollback          = "${dirName}${env.WORKSPACE_NAME_STAGE}\\build\\force-app_v_${params.Build}\\."
 	}else if(evnRollBack == 'Live'){
 	    SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_LIVE;
         SF_USERNAME              = env.SF_USERNAME_LIVE;
         SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_LIVE;
         SF_INSTANCE_URL          = env.SF_INSTANCE_URL_LIVE;
-		buildToRollback          = "${dirName}QA Org\\build\\force-app_v_${params.Build}\\."
+		buildToRollback          = "${dirName}${env.WORKSPACE_NAME_LIVE}\\build\\force-app_v_${params.Build}\\."
 	}
 	
 	println  "Envrnmenet Name :${params.Environment}";
@@ -51,22 +51,22 @@ node {
 
 			stage('Authorize DevHub') {
 
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:org:list"
+                rc = command "\"${toolbelt}\" force:org:list"
 
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
+                rc = command "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
 
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --username ${SF_USERNAME} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --setalias HubOrg";
+                rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --username ${SF_USERNAME} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --setalias HubOrg";
                 if (rc != 0) {
                     error 'Salesforce dev hub org authorization failed.'
                 }
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:org:list"
+                rc = command "\"${toolbelt}\" force:org:list"
             }
 
 
             /*Stage 6 Deploy Code to Org*/
 
             stage('Deploy Code'){
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d \"${buildToRollback}\" -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
+                rc = command "\"${toolbelt}\" force:mdapi:deploy -d \"${buildToRollback}\" -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
                     error 'Salesforce Code Deployment failed.'
                 }
@@ -75,7 +75,7 @@ node {
              /*Stage 6 Deployement Status in Org*/
 
              stage('Deploy Status Report'){
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
+                rc = command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
                 if (rc != 0) {
                     error 'Unable to get the deployment status.'
                 }
