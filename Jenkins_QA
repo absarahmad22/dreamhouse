@@ -93,7 +93,7 @@ node {
             }
 
 
-            /* Convert to the Org Metadata*/
+            /*Stage 6 Convert to the Org Metadata*/
 
             stage('Convert to Org Metadata'){
                  command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
@@ -102,7 +102,7 @@ node {
                 }
             }
 
-            /*Stage 6 Deploy Code to Org*/
+            /*Stage 7 Deploy Code to Org*/
 
             stage('Deploy Code'){
                 command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
@@ -110,8 +110,15 @@ node {
                     error 'Salesforce Code Deployment failed.'
                 }
             }
+			/*Stage 8 Execute Selenium Automation Suite*/
+			stage('Execute Test Cases'){
+                build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}"))] , wait : true
+                /*if (rc != 0) {
+                    error 'Unable to get the deployment status.'
+                }*/
+            }		
 
-             /*Stage 6 Deployement Status in Org*/
+             /*Stage 9 Deployement Status in Org*/
 
              stage('Deploy Status Report'){
                 command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
