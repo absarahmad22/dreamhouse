@@ -38,7 +38,7 @@ node {
 		
 		withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'jwt_key_file')]) {
             
-            /*Step-1: Authorize DevHub Org*/
+            /*Step-1: Authorize DevHub Org
 
 			stage('Authorize DevHub') {
 
@@ -53,6 +53,7 @@ node {
                 rc = command "\"${toolbelt}\" force:org:list"
             }
 
+			*/
 
             /*Step 2 Create Scratch Org
 
@@ -97,7 +98,7 @@ node {
 
 			*/
 
-            /*Stage 6 Convert to the Org Metadata*/
+            /*Stage 6 Convert to the Org Metadata
 
             stage('Convert to Org Metadata'){
                  rc = command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
@@ -106,6 +107,7 @@ node {
                 }
             }
 
+			*/
             /*Stage 7 Deploy Code to Org*/
 
             stage('Deploy Code'){
@@ -119,12 +121,14 @@ node {
                 rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}")]
                 println "---------------SeleniumTestNew-----------------";
 				println rc;
+				println rc.getResult();
+				println rc.getCurrentResult();
 				/*if (rc != 0) {
                     error 'Unable to get the deployment status.'
                 }*/
             }		
 
-             /*Stage 9 Deployement Status in Org*/
+             /*Stage 9 Deployement Status in Org
 
              stage('Deploy Status Report'){
                 rc = command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
@@ -132,6 +136,7 @@ node {
                     error 'Unable to get the deployment status.'
                 }
             }		
+			 */
 		}
 	}
 }
