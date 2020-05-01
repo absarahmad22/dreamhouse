@@ -17,9 +17,6 @@
                 <th class="" scope="col">
                     <div class="slds-truncate" title="Email">Email</div>
                 </th>
-				<th class="" scope="col">
-                    <div class="slds-truncate" title="Level">Level</div>
-                </th>
             </tr>
         </thead>
         <tbody>
@@ -36,9 +33,6 @@
                     </td>
                     <td data-label="Email">
                         <div class="slds-truncate" title="{!con.Email}">{!con.Email}</div>
-                    </td>
-					<td data-label="Email">
-                        <div class="slds-truncate" title="{!con.Level__c}">{!con.Level__c}</div>
                     </td>
                 </tr>
             </aura:iteration>
