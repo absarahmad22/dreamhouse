@@ -42,22 +42,22 @@ node {
 
 			stage('Authorize DevHub') {
 
-                command "\"${toolbelt}\" force:org:list"
+                rc = command "\"${toolbelt}\" force:org:list"
 
-                command "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
+                rc = command "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
 
-                command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --username ${SF_USERNAME} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --setalias HubOrg";
+                rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --username ${SF_USERNAME} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --setalias HubOrg";
                 if (rc != 0) {
                     error 'Salesforce dev hub org authorization failed.'
                 }
-                command "\"${toolbelt}\" force:org:list"
+                rc = command "\"${toolbelt}\" force:org:list"
             }
 
 
             /*Step 2 Create Scratch Org*/
 
             stage('Create Test Scratch Org') {
-                command "\"${toolbelt}\" force:org:create --targetdevhubusername HubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias ciorg --wait 10 --durationdays 1"
+                rc = command "\"${toolbelt}\" force:org:create --targetdevhubusername HubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias ciorg --wait 10 --durationdays 1"
                 if (rc != 0) {
                     error 'Salesforce test scratch org creation failed.'
                 }
@@ -66,7 +66,7 @@ node {
 
             /*Stage 3 Push Source Code to Scratch Org*/
             stage('Push To Test Scratch Org') {
-                command "\"${toolbelt}\" force:source:push --targetusername ciorg"
+                rc = command "\"${toolbelt}\" force:source:push --targetusername ciorg"
                 if (rc != 0) {
                     error 'Salesforce push to test scratch org failed.'
                 }
@@ -77,7 +77,7 @@ node {
             /*Stage 4 Run Unit Testing Scratch Org*/
 
             stage('Run Tests In Test Scratch Org') {
-                command "\"${toolbelt}\" force:apex:test:run --targetusername ciorg --wait 10 -r human --resultformat tap --codecoverage --testlevel ${TEST_LEVEL}"
+                rc = command "\"${toolbelt}\" force:apex:test:run --targetusername ciorg --wait 10 -r human --resultformat tap --codecoverage --testlevel ${TEST_LEVEL}"
                 if (rc != 0) {
                     error 'Salesforce unit test run in test scratch org failed.'
                 }
@@ -86,7 +86,7 @@ node {
             /*Stage 5 Delete Scratch Org*/
 
              stage('Delete Test Scratch Org') {
-                command "\"${toolbelt}\" force:org:delete --targetusername ciorg --noprompt"
+                rc = command "\"${toolbelt}\" force:org:delete --targetusername ciorg --noprompt"
                 if (rc != 0) {
                     error 'Unable to delete the Scratch Org.'
                 }
@@ -96,7 +96,7 @@ node {
             /*Stage 6 Convert to the Org Metadata*/
 
             stage('Convert to Org Metadata'){
-                 command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
+                 rc = command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
                 if (rc != 0) {
                     error 'Convert Source Code to Org Metadata failed'
                 }
@@ -105,14 +105,14 @@ node {
             /*Stage 7 Deploy Code to Org*/
 
             stage('Deploy Code'){
-                command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
+                rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
                     error 'Salesforce Code Deployment failed.'
                 }
             }
 			/*Stage 8 Execute Selenium Automation Suite*/
 			stage('Execute Test Cases'){
-                build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}")]
+                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}")]
                 /*if (rc != 0) {
                     error 'Unable to get the deployment status.'
                 }*/
@@ -121,7 +121,7 @@ node {
              /*Stage 9 Deployement Status in Org*/
 
              stage('Deploy Status Report'){
-                command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
+                rc = command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
                 if (rc != 0) {
                     error 'Unable to get the deployment status.'
                 }
