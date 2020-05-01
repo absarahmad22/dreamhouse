@@ -16,7 +16,7 @@ node {
 	def WORKSPACE_NAME_QA        = env.WORKSPACE_NAME_QA;
 	def QA_BUILD_PARAM           = params.Build;
 	dirName = dirName.replace(JOB_NAME,'');
-	def build_directory = "${dirName}\\${WORKSPACE_NAME_QA}\\build\\force-app_v_${QA_BUILD_PARAM}\\.";
+	def build_directory = "${dirName}${WORKSPACE_NAME_QA}\\build\\force-app_v_${QA_BUILD_PARAM}\\.";
 
 	println "printing information of env variable";
 	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
@@ -66,7 +66,7 @@ node {
             */
 
             stage("Deploy Code to target org"){
-                rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory} -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1 ";
+                rc = command "\"${toolbelt}\" force:mdapi:deploy -d \"${build_directory}\" -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1 ";
                 if (rc != 0) {
                     error "Salesforce deployment failed in the org."
                 }
