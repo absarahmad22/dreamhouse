@@ -4,14 +4,19 @@ import groovy.json.JsonSlurperClassic
 
 node {
 
-    def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_STAGE;         //"3MVG97quAmFZJfVy5VgSD0VfwcdBR1ufeX4ULL919TZu4fshfI_UO0yCjCLG2v4azJSvhEnOOhOz8stblhaZC";
-    def SF_USERNAME              = env.SF_USERNAME_STAGE;             //"partialcopy@gmail.com";
-    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_STAGE;//"f45a0e76-ee17-4f39-addb-fce83d2b09ed";
-    def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_STAGE;         //"https://login.salesforce.com";
+    def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_STAGE;         
+    def SF_USERNAME              = env.SF_USERNAME_STAGE;             
+    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_STAGE; 
+    def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_STAGE;          
     def TEST_LEVEL               ="RunLocalTests";
 
     def toolbelt = tool "toolbelt";
-	def build_directory = "build/force-app_v_${env.BUILD_NUMBER}";
+	
+	def dirName                  = env.WORKSPACE;
+	def WORKSPACE_NAME_QA        = env.WORKSPACE_NAME_QA;
+	def QA_BUILD_PARAM           = params.Build;
+	dirName = dirName.replace(JOB_NAME,'');
+	def build_directory = "${dirName}\\${WORKSPACE_NAME_QA}\\build\\force-app_v_${QA_BUILD_PARAM}\\.";
 
 	println "printing information of env variable";
 	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
@@ -19,6 +24,7 @@ node {
 	print "SERVER_KEY_CREDENTALS_ID :${SERVER_KEY_CREDENTALS_ID}";
 	print "TEST_LEVEL :${TEST_LEVEL}";
 	print "SF_INSTANCE_URL :${SF_INSTANCE_URL}";
+	print "Directory Name : ${build_directory}";
 
     // -------------------------------------------------------------------------
     // Check out code from source control.
@@ -27,11 +33,6 @@ node {
     stage("checkout source") {
         checkout scm
     }
-
-    // -------------------------------------------------------------------------
-    // Run all the enclosed stages with access to the Salesforce
-    // JWT key credentials.
-    // -------------------------------------------------------------------------
 
 	
 	withEnv(["HOME=${env.WORKSPACE}"]) {
@@ -52,7 +53,7 @@ node {
             /* Step:2 Convert to the Org Metadata
 
             stage("Convert to Org Metadata"){
-                 rc = bat returnStatus: true, script: "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
+                command "\"${toolbelt}\" force:source:convert -r force-app -d build/force-app_v_${env.BUILD_NUMBER}"
                 if (rc != 0) {
                     error "Convert source code to metadata failed."
                 }
@@ -61,7 +62,7 @@ node {
             /*Step:3 Deploy Code to Org*/
 
             stage("Deploy Code to target org"){
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
+                command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory} -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
                     error "Salesforce deployment failed in the org."
                 }
@@ -70,7 +71,7 @@ node {
              /*Step:4 Deployement Status in Org*/
 
              stage("Deployment Status Report"){
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
+                command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
                 if (rc != 0) {
                     error "Salesforce test scratch org deletion failed."
                 }
@@ -80,7 +81,7 @@ node {
             /*Step:5 Run Unit Testing the Org*/
 
             /*stage("Run Tests In Org") {
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:apex:test:run --targetusername ${SF_USERNAME} --wait 10 -r human --resultformat tap --codecoverage --testlevel ${TEST_LEVEL}"
+                command "\"${toolbelt}\" force:apex:test:run --targetusername ${SF_USERNAME} --wait 10 -r human --resultformat tap --codecoverage --testlevel ${TEST_LEVEL}"
                 if (rc != 0) {
                    error "Salesforce unit test run in test scratch org failed."
                 }

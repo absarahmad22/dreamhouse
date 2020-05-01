@@ -4,14 +4,19 @@ import groovy.json.JsonSlurperClassic
 
 node {
 
-    def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_LIVE;         //"3MVG97quAmFZJfVwMou_05IMU5wbKTzfYxQlvr76WufEXFFwy7y1pmd67JlH8ejD_O8ut.kuugtFL59IXPqah";
-    def SF_USERNAME              = env.SF_USERNAME_LIVE;             //"livecopy@gmail.com";
-    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_LIVE;//"e2b5aaa9-db74-4379-82f3-84837b035c62";
-    def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_LIVE;         //"https://login.salesforce.com";
+    def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_LIVE;        
+    def SF_USERNAME              = env.SF_USERNAME_LIVE;           
+    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_LIVE;
+    def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_LIVE;        
     def TEST_LEVEL               = "RunLocalTests";
 
     def toolbelt = tool "toolbelt";
-	def build_directory = "build/force-app_v_${env.BUILD_NUMBER}";
+	
+	def dirName                  = env.WORKSPACE;
+	def WORKSPACE_NAME_QA        = env.WORKSPACE_NAME_QA;
+	def QA_BUILD_PARAM           = params.Build;
+	dirName = dirName.replace(JOB_NAME,'');
+	def build_directory = "${dirName}\\${WORKSPACE_NAME_QA}\\build\\force-app_v_${QA_BUILD_PARAM}\\.";
 
 	println "printing information of env variable";
 	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
@@ -19,6 +24,7 @@ node {
 	print "SERVER_KEY_CREDENTALS_ID :${SERVER_KEY_CREDENTALS_ID}";
 	print "TEST_LEVEL :${TEST_LEVEL}";
 	print "SF_INSTANCE_URL :${SF_INSTANCE_URL}";
+	print "Directory Name : ${build_directory}";
 
     // -------------------------------------------------------------------------
     // Check out code from source control.
@@ -28,13 +34,6 @@ node {
         checkout scm
     }
 
-    X/Y;
-    // -------------------------------------------------------------------------
-    // Run all the enclosed stages with access to the Salesforce
-    // JWT key credentials.
-    // -------------------------------------------------------------------------
-
-	
 	withEnv(["HOME=${env.WORKSPACE}"]) {
 		
 	withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: "jwt_key_file")]) {
@@ -51,7 +50,7 @@ node {
             /* Step:2 Convert to the Org Metadata
 
             stage("Convert to Org Metadata"){
-                rc = command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
+                rc = command "\"${toolbelt}\" force:source:convert -r force-app -d build/force-app_v_${env.BUILD_NUMBER}"
                 if (rc != 0) {
                     error "Convert source code to metadata failed."
                 }
@@ -67,7 +66,7 @@ node {
             */
 
             stage("Deploy Code to target org"){
-                rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1 ";
+                rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory} -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1 ";
                 if (rc != 0) {
                     error "Salesforce deployment failed in the org."
                 }
