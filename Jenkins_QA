@@ -112,7 +112,7 @@ node {
             }
 			/*Stage 8 Execute Selenium Automation Suite*/
 			stage('Execute Test Cases'){
-                build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}"))]
+                build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}")]
                 /*if (rc != 0) {
                     error 'Unable to get the deployment status.'
                 }*/
