@@ -10,6 +10,7 @@ node {
     def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_QA;         // env.SF_INSTANCE_URL ?: "https://login.salesforce.com"
     def TEST_LEVEL='RunLocalTests'
 
+	def build_directory = "build/force-app_v_${env.BUILD_NUMBER}";
     def toolbelt = tool 'toolbelt'
         
     println "printing information of env variable";
@@ -98,7 +99,7 @@ node {
             /* Convert to the Org Metadata*/
 
             stage('Convert to Org Metadata'){
-                 rc = bat returnStatus: true, script: "\"${toolbelt}\" force:source:convert -r force-app -d import/force-app"
+                 rc = bat returnStatus: true, script: "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
                 if (rc != 0) {
                     error 'Convert Source Code to Org Metadata failed'
                 }
@@ -107,7 +108,7 @@ node {
             /*Stage 6 Deploy Code to Org*/
 
             stage('Deploy Code'){
-                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d import/force-app/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
+                rc = bat returnStatus: true, script: "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
                     error 'Salesforce Code Deployment failed.'
                 }

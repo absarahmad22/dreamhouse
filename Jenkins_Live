@@ -11,6 +11,7 @@ node {
     def TEST_LEVEL               = "RunLocalTests";
 
     def toolbelt = tool "toolbelt";
+	def build_directory = "build/force-app_v_${env.BUILD_NUMBER}";
 
 	println "printing information of env variable";
 	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
@@ -50,7 +51,7 @@ node {
             /* Step:2 Convert to the Org Metadata
 
             stage("Convert to Org Metadata"){
-                 rc = command "\"${toolbelt}\" force:source:convert -r force-app -d import/force-app"
+                rc = command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
                 if (rc != 0) {
                     error "Convert source code to metadata failed."
                 }
@@ -66,7 +67,7 @@ node {
             */
 
             stage("Deploy Code to target org"){
-                rc = command "\"${toolbelt}\" force:mdapi:deploy -d import/force-app/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1 ";
+                rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1 ";
                 if (rc != 0) {
                     error "Salesforce deployment failed in the org."
                 }
