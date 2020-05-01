@@ -108,7 +108,7 @@ node {
             }
 
 			*/
-            /*Stage 7 Deploy Code to Org*/
+            /*Stage 7 Deploy Code to Org
 
             stage('Deploy Code'){
                 rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
@@ -116,6 +116,8 @@ node {
                     error 'Salesforce Code Deployment failed.'
                 }
             }
+			
+			*/
 			/*Stage 8 Execute Selenium Automation Suite*/
 			stage('Execute Test Cases'){
                 rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}")]
