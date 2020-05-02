@@ -4,6 +4,9 @@ import groovy.json.JsonSlurperClassic
 
 node {
 
+    def USER_NAME_SEL            = env.USER_NAME_SEL;    
+	def PASSWORD_SEL             = env.PASSWORD_SEL;  
+
     def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_QA;         
     def SF_USERNAME              = env.SF_USERNAME_QA;           
     def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_QA;
@@ -38,7 +41,7 @@ node {
 		
 		withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'jwt_key_file')]) {
             
-            /*Step-1: Authorize DevHub Org
+            /*Step-1: Authorize DevHub Org*/
 
 			stage('Authorize DevHub') {
 
@@ -53,7 +56,7 @@ node {
                 rc = command "\"${toolbelt}\" force:org:list"
             }
 
-			*/
+			
 
             /*Step 2 Create Scratch Org
 
@@ -98,8 +101,7 @@ node {
 
 			*/
 
-            /*Stage 6 Convert to the Org Metadata
-
+            /*Stage 6 Convert to the Org Metadata*/
             stage('Convert to Org Metadata'){
                  rc = command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
                 if (rc != 0) {
@@ -107,9 +109,8 @@ node {
                 }
             }
 
-			*/
-            /*Stage 7 Deploy Code to Org
-
+			
+            /*Stage 7 Deploy Code to Org*/
             stage('Deploy Code'){
                 rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
@@ -117,28 +118,20 @@ node {
                 }
             }
 			
-			*/
+			
 			/*Stage 8 Execute Selenium Automation Suite*/
-			stage('Execute Test Cases'){
-                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}")]
-                println "---------------SeleniumTestNew-----------------";
-				println rc;
-				println rc.getResult();
-				println rc.getCurrentResult();
-				/*if (rc != 0) {
-                    error 'Unable to get the deployment status.'
-                }*/
+			stage('Execute Selenium Test Cases'){
+                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}"), string(name: 'USER_NAME', value: "${USER_NAME_SEL}"), string(name: 'PASSWORD', value: "${PASSWORD_SEL}")]
             }		
 
-             /*Stage 9 Deployement Status in Org
-
+             /*Stage 9 Deployement Status in Org */
              stage('Deploy Status Report'){
                 rc = command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
                 if (rc != 0) {
                     error 'Unable to get the deployment status.'
                 }
             }		
-			 */
+			
 		}
 	}
 }
