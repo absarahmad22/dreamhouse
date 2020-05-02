@@ -10,11 +10,7 @@ node {
     def SERVER_KEY_CREDENTALS_ID = "6c8daa18-bf91-4083-9f4e-459b1c98f0d0";
     def SF_INSTANCE_URL          = "https://login.salesforce.com";        
     def TEST_LEVEL='RunLocalTests'
-    def dirName = env.WORKSPACE;
-	def WORKSPACE_NAME_QA        = env.WORKSPACE_NAME_QA;
-	dirName = dirName.replace(JOB_NAME,'');
 
-	def build_directory = "build/force-app_v_${env.BUILD_NUMBER}";
     def toolbelt = tool 'toolbelt'
         
     println "printing information of env variable";
@@ -131,7 +127,6 @@ node {
             println "scratch org instanceUrl  : ${insurl}";
 			
             /*Stage 5 Delete Scratch Org
-
              stage('Delete Test Scratch Org') {
                 rc = command "\"${toolbelt}\" force:org:delete --targetusername scratch_org_dev --noprompt"
                 if (rc != 0) {
