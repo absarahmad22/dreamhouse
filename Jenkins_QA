@@ -45,7 +45,6 @@ node {
 
 			stage('Authorize DevHub') {
 
-                rc = command "\"${toolbelt}\" force:org:list"
 
                 rc = command "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
 
