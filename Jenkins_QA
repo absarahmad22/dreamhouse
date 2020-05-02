@@ -6,6 +6,8 @@ node {
 
     def USER_NAME_SEL            = env.USER_NAME_SEL;    
 	def PASSWORD_SEL             = env.PASSWORD_SEL;  
+    def USER_NAME_SEL_VALID      = env.USER_NAME_SEL_VALID;    
+	def PASSWORD_SEL_VALID       = env.PASSWORD_SEL_VALID;	
 
     def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_QA;         
     def SF_USERNAME              = env.SF_USERNAME_QA;           
@@ -120,7 +122,7 @@ node {
 			
 			/*Stage 8 Execute Selenium Automation Suite*/
 			stage('Execute Selenium Test Cases'){
-                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}"), string(name: 'USER_NAME', value: "${USER_NAME_SEL}"), string(name: 'PASSWORD', value: "${PASSWORD_SEL}")]
+                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}"), string(name: 'USER_NAME', value: "${USER_NAME_SEL}"), string(name: 'PASSWORD', value: "${PASSWORD_SEL}"), string(name: 'USER_NAME_VALID', value: "${USER_NAME_SEL_VALID}"), string(name: 'PASSWORD_VALID', value: "${PASSWORD_SEL_VALID}")];
             }		
 
              /*Stage 9 Deployement Status in Org */
