@@ -11,13 +11,6 @@ node {
 
 	def toolbelt = tool 'toolbelt'
 
-	println "printing information of env variable";
-	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
-	print "SF_USERNAME :${SF_USERNAME}";
-	print "SERVER_KEY_CREDENTALS_ID :${SERVER_KEY_CREDENTALS_ID}";
-	print "TEST_LEVEL :${TEST_LEVEL}";
-	print "SF_INSTANCE_URL :${SF_INSTANCE_URL}";
-
     // -------------------------------------------------------------------------
     // Check out code from source control.
     // -------------------------------------------------------------------------
@@ -52,7 +45,7 @@ node {
             * if this been exist utilize this one or create a fresh scratch org for the specified day.
             */
             
-	    def dev_org;
+	        def dev_org;
             if(response.status == 0 && response.result.scratchOrgs.size() > 0){
                 def orgs = response.result.scratchOrgs;
                 for (def j = 0 ; j < orgs.size() ; j++) {
@@ -124,19 +117,10 @@ node {
             println "scratch org instanceUrl  : ${insurl}";
 			
 			
-	/*Stage 5 Execute Selenium Automation Suite*/
-	stage('Execute Selenium Test Cases'){
-		rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${insurl}"), string(name: 'USER_NAME_VALID', value: "${username}"), string(name: 'PASSWORD_VALID', value: "${password}")];
-	}	
-			
-            /*Stage 5 Delete Scratch Org
-
-             stage('Delete Test Scratch Org') {
-                rc = command "\"${toolbelt}\" force:org:delete --targetusername scratch_org_dev --noprompt"
-                if (rc != 0) {
-                    error 'Unable to delete the Scratch Org.'
-                }
-            }*/
+            /*Stage 5 Execute Selenium Automation Suite*/
+            stage('Execute Selenium Test Cases'){
+                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${insurl}"), string(name: 'USER_NAME_VALID', value: "${username}"), string(name: 'PASSWORD_VALID', value: "${password}")];
+            }	
 		}
 	}
 }
@@ -161,7 +145,6 @@ def commandOutput(script) {
     def index = rmsg.indexOf('--json') + 6;
     def len   = rmsg.length();
     def json  = rmsg.substring(index,len);
-    println json;
     def jsonSlurper = new JsonSlurperClassic();
     def response = jsonSlurper.parseText(json);
     return response;

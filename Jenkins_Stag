@@ -107,7 +107,6 @@ def commandOutput(script) {
     def index = rmsg.indexOf('--json') + 6;
     def len   = rmsg.length();
     def json  = rmsg.substring(index,len);
-    println json;
     def jsonSlurper = new JsonSlurperClassic();
     def response = jsonSlurper.parseText(json);
     return response;
