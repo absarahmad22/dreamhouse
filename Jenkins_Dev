@@ -3,17 +3,15 @@
 import groovy.json.JsonSlurperClassic
 
 node {
+	def SF_CONSUMER_KEY          = "3MVG97quAmFZJfVzfedLY.zgYh_Yrp8MdbXs9.BDkKlhP9.2klfm00TCOcu.Fk7zmfucTFRxj0qyUc3XbF3PB";         
+	def SF_USERNAME              = "mydevcopy@gmail.com";           
+	def SERVER_KEY_CREDENTALS_ID = "6c8daa18-bf91-4083-9f4e-459b1c98f0d0";
+	def SF_INSTANCE_URL          = "https://login.salesforce.com";        
+	def TEST_LEVEL='RunLocalTests'
 
+	def toolbelt = tool 'toolbelt'
 
-    def SF_CONSUMER_KEY          = "3MVG97quAmFZJfVzfedLY.zgYh_Yrp8MdbXs9.BDkKlhP9.2klfm00TCOcu.Fk7zmfucTFRxj0qyUc3XbF3PB";         
-    def SF_USERNAME              = "mydevcopy@gmail.com";           
-    def SERVER_KEY_CREDENTALS_ID = "6c8daa18-bf91-4083-9f4e-459b1c98f0d0";
-    def SF_INSTANCE_URL          = "https://login.salesforce.com";        
-    def TEST_LEVEL='RunLocalTests'
-
-    def toolbelt = tool 'toolbelt'
-        
-    println "printing information of env variable";
+	println "printing information of env variable";
 	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
 	print "SF_USERNAME :${SF_USERNAME}";
 	print "SERVER_KEY_CREDENTALS_ID :${SERVER_KEY_CREDENTALS_ID}";
@@ -24,9 +22,9 @@ node {
     // Check out code from source control.
     // -------------------------------------------------------------------------
 
-    stage('checkout source') {
-        checkout scm
-    }
+	stage('checkout source') {
+		checkout scm
+	}
 
 
 	
@@ -34,11 +32,11 @@ node {
 		
 		withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'jwt_key_file')]) {
             
-            /*Step-1: Authorize DevHub Org*/
+            	/*Step-1: Authorize DevHub Org*/
 
-            def response;
+            	def response;
 
-			stage('Authorize DevHub') {
+		stage('Authorize DevHub') {
 
                 rc = command "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
 
@@ -47,7 +45,6 @@ node {
                     error 'Salesforce dev hub org authorization failed.'
                 }
                 response = commandOutput "\"${toolbelt}\" force:org:list --json"
-
             }
 
             /*
@@ -55,11 +52,9 @@ node {
             * if this been exist utilize this one or create a fresh scratch org for the specified day.
             */
             
-
-
+	    def dev_org;
             if(response.status == 0 && response.result.scratchOrgs.size() > 0){
                 def orgs = response.result.scratchOrgs;
-                def dev_org;
                 for (def j = 0 ; j < orgs.size() ; j++) {
                     if(orgs[j].alias != null && orgs[j].alias == 'scratch_org_dev' && orgs[j].isExpired != true){
                         dev_org = orgs[j];
@@ -78,11 +73,11 @@ node {
             if(dev_org == null){
                 //create a Scratch Org
                 stage('Create Test Scratch Org') {
-                    response = commandOutput "\"${toolbelt}\" force:org:create --targetdevhubusername DevHubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias scratch_org_dev --wait 10 --durationdays 3"
+                    response = commandOutput "\"${toolbelt}\" force:org:create --targetdevhubusername DevHubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias scratch_org_dev --wait 10 --durationdays 30 --json"
                     if(response.status != 0){
                         error 'Salesforce test scratch org creation failed.'
                     }
-                    rc = command "\"${toolbelt}\" force:user:password:generate -u ${response.result.username} --json";
+                    rc = command "\"${toolbelt}\" force:user:password:generate -u ${response.result.username}  ";
                     response = commandOutput "\"${toolbelt}\" force:user:display -u ${response.result.username} --json";
                     if(response.status != 0){
                         error 'Salesforce test scratch org creation failed.'
@@ -95,6 +90,9 @@ node {
                 }
             }else{
                 //Use the existing Scratch Org and display login URL UserName and Password at the end so user can able to check it out.
+                if(dev_org.password == null){
+                     rc = command "\"${toolbelt}\" force:user:password:generate -u ${dev_org.alias}  ";
+                }
                 response = commandOutput "\"${toolbelt}\" force:user:display -u scratch_org_dev --json";
                 username = response.result.username;
                 password = response.result.password;
@@ -125,7 +123,14 @@ node {
             println "scratch org loginURL     : ${loginURL}";
             println "scratch org instanceUrl  : ${insurl}";
 			
+			
+	/*Stage 5 Execute Selenium Automation Suite*/
+	stage('Execute Selenium Test Cases'){
+		rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${insurl}"), string(name: 'USER_NAME_VALID', value: "${username}"), string(name: 'PASSWORD_VALID', value: "${password}")];
+	}	
+			
             /*Stage 5 Delete Scratch Org
+
              stage('Delete Test Scratch Org') {
                 rc = command "\"${toolbelt}\" force:org:delete --targetusername scratch_org_dev --noprompt"
                 if (rc != 0) {
@@ -153,7 +158,7 @@ def commandOutput(script) {
         rmsg =  bat(returnStdout: true, script: script);
         rmsg = rmsg.readLines().drop(1).join(" ");
     }
-    def index = rmsg.indexOf('json') + 4;
+    def index = rmsg.indexOf('--json') + 6;
     def len   = rmsg.length();
     def json  = rmsg.substring(index,len);
     println json;
