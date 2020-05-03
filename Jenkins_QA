@@ -3,9 +3,7 @@
 import groovy.json.JsonSlurperClassic
 
 node {
-
-    def USER_NAME_SEL            = env.USER_NAME_SEL;    
-	def PASSWORD_SEL             = env.PASSWORD_SEL;  
+ 
     def USER_NAME_SEL_VALID      = env.USER_NAME_SEL_VALID;    
 	def PASSWORD_SEL_VALID       = env.PASSWORD_SEL_VALID;	
 
@@ -20,13 +18,6 @@ node {
 
 	def build_directory = "build/force-app_v_${env.BUILD_NUMBER}";
     def toolbelt = tool 'toolbelt'
-        
-    println "printing information of env variable";
-	print "SF_CONSUMER_KEY :${SF_CONSUMER_KEY}";
-	print "SF_USERNAME :${SF_USERNAME}";
-	print "SERVER_KEY_CREDENTALS_ID :${SERVER_KEY_CREDENTALS_ID}";
-	print "TEST_LEVEL :${TEST_LEVEL}";
-	print "SF_INSTANCE_URL :${SF_INSTANCE_URL}";
 
     // -------------------------------------------------------------------------
     // Check out code from source control.
@@ -43,13 +34,10 @@ node {
 		
 		withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'jwt_key_file')]) {
             
-            /*Step-1: Authorize DevHub Org*/
+            /*Stage-1: Authorize DevHub Org*/
 
 			stage('Authorize DevHub') {
-
-
                 rc = command "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
-
                 rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${SF_INSTANCE_URL} --clientid ${SF_CONSUMER_KEY} --username ${SF_USERNAME} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --setalias HubOrg";
                 if (rc != 0) {
                     error 'Salesforce dev hub org authorization failed.'
@@ -57,52 +45,7 @@ node {
                 rc = command "\"${toolbelt}\" force:org:list"
             }
 
-			
-
-            /*Step 2 Create Scratch Org
-
-            stage('Create Test Scratch Org') {
-                rc = command "\"${toolbelt}\" force:org:create --targetdevhubusername HubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias ciorg --wait 10 --durationdays 1"
-                if (rc != 0) {
-                    error 'Salesforce test scratch org creation failed.'
-                }
-            }
-
-			*/
-
-            /*Stage 3 Push Source Code to Scratch Org
-            stage('Push To Test Scratch Org') {
-                rc = command "\"${toolbelt}\" force:source:push --targetusername ciorg"
-                if (rc != 0) {
-                    error 'Salesforce push to test scratch org failed.'
-                }
-            }
-
-			*/
-
-
-            /*Stage 4 Run Unit Testing Scratch Org
-
-            stage('Run Tests In Test Scratch Org') {
-                rc = command "\"${toolbelt}\" force:apex:test:run --targetusername ciorg --wait 10 -r human --resultformat tap --codecoverage --testlevel ${TEST_LEVEL}"
-                if (rc != 0) {
-                    error 'Salesforce unit test run in test scratch org failed.'
-                }
-            }
-
-			*/
-            /*Stage 5 Delete Scratch Org
-
-             stage('Delete Test Scratch Org') {
-                rc = command "\"${toolbelt}\" force:org:delete --targetusername ciorg --noprompt"
-                if (rc != 0) {
-                    error 'Unable to delete the Scratch Org.'
-                }
-            }
-
-			*/
-
-            /*Stage 6 Convert to the Org Metadata*/
+            /*Stage 2 Convert to the Org Metadata*/
             stage('Convert to Org Metadata'){
                  rc = command "\"${toolbelt}\" force:source:convert -r force-app -d ${build_directory}"
                 if (rc != 0) {
@@ -111,7 +54,7 @@ node {
             }
 
 			
-            /*Stage 7 Deploy Code to Org*/
+            /*Stage 3 Deploy Code to Org*/
             stage('Deploy Code'){
                 rc = command "\"${toolbelt}\" force:mdapi:deploy -d ${build_directory}/. -u ${SF_USERNAME} -l ${TEST_LEVEL} -w -1"
                 if (rc != 0) {
@@ -120,12 +63,12 @@ node {
             }
 			
 			
-			/*Stage 8 Execute Selenium Automation Suite*/
+			/*Stage 4 Execute Selenium Automation Suite*/
 			stage('Execute Selenium Test Cases'){
-                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}"), string(name: 'USER_NAME', value: "${USER_NAME_SEL}"), string(name: 'PASSWORD', value: "${PASSWORD_SEL}"), string(name: 'USER_NAME_VALID', value: "${USER_NAME_SEL_VALID}"), string(name: 'PASSWORD_VALID', value: "${PASSWORD_SEL_VALID}")];
+                rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${SF_INSTANCE_URL}"), string(name: 'USER_NAME_VALID', value: "${SF_USERNAME}"), string(name: 'PASSWORD_VALID', value: "${PASSWORD_SEL_VALID}")];
             }		
 
-             /*Stage 9 Deployement Status in Org */
+             /*Stage 5 Deployement Status in Org */
              stage('Deploy Status Report'){
                 rc = command "\"${toolbelt}\" force:mdapi:deploy:report -u ${SF_USERNAME}"
                 if (rc != 0) {

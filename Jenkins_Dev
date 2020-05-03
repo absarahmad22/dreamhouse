@@ -111,7 +111,6 @@ node {
                 }
             }
 
-
             /*Stage 4 Run Unit Testing Scratch Org*/
 
             stage('Run Tests In Test Scratch Org') {
@@ -133,9 +132,6 @@ node {
                     error 'Unable to delete the Scratch Org.'
                 }
             }*/
-
-			
-			
 		}
 	}
 }
