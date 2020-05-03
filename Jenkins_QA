@@ -4,9 +4,7 @@ import groovy.json.JsonSlurperClassic
 
 node {
  
-    def USER_NAME_SEL_VALID      = env.USER_NAME_SEL_VALID;    
 	def PASSWORD_SEL_VALID       = env.PASSWORD_SEL_VALID;	
-
     def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_QA;         
     def SF_USERNAME              = env.SF_USERNAME_QA;           
     def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_QA;
