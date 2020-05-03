@@ -75,7 +75,7 @@ node {
             if(dev_org == null){
                 //create a Scratch Org
                 stage('Create Test Scratch Org') {
-                    response = commandOutput "\"${toolbelt}\" force:org:create --targetdevhubusername DevHubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias scratch_org_dev --wait 10 --durationdays 3 --json"
+                    response = commandOutput "\"${toolbelt}\" force:org:create --targetdevhubusername DevHubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias scratch_org_dev --wait 10 --durationdays 30 --json"
                     if(response.status != 0){
                         error 'Salesforce test scratch org creation failed.'
                     }
