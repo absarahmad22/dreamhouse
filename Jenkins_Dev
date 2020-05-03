@@ -3,7 +3,10 @@
 import groovy.json.JsonSlurperClassic
 
 node {
-
+	def USER_NAME_SEL            = env.USER_NAME_SEL;    
+	def PASSWORD_SEL             = env.PASSWORD_SEL;  
+	def USER_NAME_SEL_VALID      = env.USER_NAME_SEL_VALID;    
+	def PASSWORD_SEL_VALID       = env.PASSWORD_SEL_VALID;	
 
 	def SF_CONSUMER_KEY          = "3MVG97quAmFZJfVzfedLY.zgYh_Yrp8MdbXs9.BDkKlhP9.2klfm00TCOcu.Fk7zmfucTFRxj0qyUc3XbF3PB";         
 	def SF_USERNAME              = "mydevcopy@gmail.com";           
@@ -125,6 +128,12 @@ node {
             println "scratch org password     : ${password}";
             println "scratch org loginURL     : ${loginURL}";
             println "scratch org instanceUrl  : ${insurl}";
+			
+			
+	/*Stage 5 Execute Selenium Automation Suite*/
+	stage('Execute Selenium Test Cases'){
+		rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${insurl}"), string(name: 'USER_NAME_VALID', value: "${username}"), string(name: 'PASSWORD_VALID', value: "${password}")];
+	}	
 			
             /*Stage 5 Delete Scratch Org
 
