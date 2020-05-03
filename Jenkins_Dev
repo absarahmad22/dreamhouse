@@ -158,7 +158,7 @@ def commandOutput(script) {
         rmsg =  bat(returnStdout: true, script: script);
         rmsg = rmsg.readLines().drop(1).join(" ");
     }
-    def index = rmsg.indexOf('json') + 4;
+    def index = rmsg.indexOf('--json') + 6;
     def len   = rmsg.length();
     def json  = rmsg.substring(index,len);
     println json;
