@@ -3,11 +3,6 @@
 import groovy.json.JsonSlurperClassic
 
 node {
-	def USER_NAME_SEL            = env.USER_NAME_SEL;    
-	def PASSWORD_SEL             = env.PASSWORD_SEL;  
-	def USER_NAME_SEL_VALID      = env.USER_NAME_SEL_VALID;    
-	def PASSWORD_SEL_VALID       = env.PASSWORD_SEL_VALID;	
-
 	def SF_CONSUMER_KEY          = "3MVG97quAmFZJfVzfedLY.zgYh_Yrp8MdbXs9.BDkKlhP9.2klfm00TCOcu.Fk7zmfucTFRxj0qyUc3XbF3PB";         
 	def SF_USERNAME              = "mydevcopy@gmail.com";           
 	def SERVER_KEY_CREDENTALS_ID = "6c8daa18-bf91-4083-9f4e-459b1c98f0d0";
