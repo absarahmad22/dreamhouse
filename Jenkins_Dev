@@ -38,6 +38,9 @@ node {
                 if (rc != 0) {
                     error 'Salesforce dev hub org authorization failed.'
                 }
+
+                rc =  command "\"${toolbelt}\" force:org:list";
+
                 response = commandOutput "\"${toolbelt}\" force:org:list --json"
             }
 
