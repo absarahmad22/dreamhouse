@@ -3,34 +3,33 @@
 import groovy.json.JsonSlurperClassic
 
 node {
-	def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_DEV;
-	def SF_USERNAME              = env.SF_USERNAME_DEV;
-	def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_DEV;
-	def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_DEV;
-	def TEST_LEVEL='RunLocalTests'
-     
+    def SF_CONSUMER_KEY = env.SF_CONSUMER_KEY_DEV;
+    def SF_USERNAME = env.SF_USERNAME_DEV;
+    def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_DEV;
+    def SF_INSTANCE_URL = env.SF_INSTANCE_URL_DEV;
+    def TEST_LEVEL = 'RunLocalTests'
 
-	def toolbelt = tool 'toolbelt';
+    def toolbelt = tool 'toolbelt';
 
     // -------------------------------------------------------------------------
     // Check out code from source control.
     // -------------------------------------------------------------------------
 
-	stage('checkout source') {
-		checkout scm;
-	}
+    stage('checkout source') {
+        checkout scm;
+    }
 
 
-	
-	withEnv(["HOME=${env.WORKSPACE}"]) {
-		
-		withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'jwt_key_file')]) {
-            
-            	/*Step-1: Authorize DevHub Org*/
 
-            	def response;
+    withEnv(["HOME=${env.WORKSPACE}"]) {
 
-		stage('Authorize DevHub') {
+        withCredentials([file(credentialsId: SERVER_KEY_CREDENTALS_ID, variable: 'jwt_key_file')]) {
+
+            /*Step-1: Authorize DevHub Org*/
+
+            def response;
+
+            stage('Authorize DevHub') {
 
                 rc = command "\"${toolbelt}\" force:auth:logout -u ${SF_USERNAME} -p"
 
@@ -39,21 +38,21 @@ node {
                     error 'Salesforce dev hub org authorization failed.'
                 }
 
-                rc =  command "\"${toolbelt}\" force:org:list";
+                rc = command "\"${toolbelt}\" force:org:list";
 
                 response = commandOutput "\"${toolbelt}\" force:org:list --json"
             }
 
             /*
-            * We are creating scratch org with the name scratch_org_dev
-            * if this been exist utilize this one or create a fresh scratch org for the specified day.
-            */
-            
-	        def dev_org;
-            if(response.status == 0 && response.result.scratchOrgs.size() > 0){
+             * We are creating scratch org with the name scratch_org_dev
+             * if this been exist utilize this one or create a fresh scratch org for the specified day.
+             */
+
+            def dev_org;
+            if (response.status == 0 && response.result.scratchOrgs.size() > 0) {
                 def orgs = response.result.scratchOrgs;
-                for (def j = 0 ; j < orgs.size() ; j++) {
-                    if(orgs[j].alias != null && orgs[j].alias == 'scratch_org_dev' && orgs[j].isExpired != true){
+                for (def j = 0; j < orgs.size(); j++) {
+                    if (orgs[j].alias != null && orgs[j].alias == 'scratch_org_dev' && orgs[j].isExpired != true) {
                         dev_org = orgs[j];
                         break;
                     }
@@ -68,37 +67,37 @@ node {
             println "scratch org dev org : ${dev_org}";
             def isLatestCreated = false;
 
-            if(dev_org == null){
+            if (dev_org == null) {
                 //create a Scratch Org
                 stage('Create Test Scratch Org') {
                     response = commandOutput "\"${toolbelt}\" force:org:create --targetdevhubusername DevHubOrg --setdefaultusername --definitionfile config/project-scratch-def.json --setalias scratch_org_dev --wait 10 --durationdays 30 --json"
-                    if(response.status != 0){
+                    if (response.status != 0) {
                         error 'Salesforce test scratch org creation failed.'
                     }
                     rc = command "\"${toolbelt}\" force:user:password:generate -u ${response.result.username}  ";
                     response = commandOutput "\"${toolbelt}\" force:user:display -u ${response.result.username} --json";
-                    if(response.status != 0){
+                    if (response.status != 0) {
                         error 'Salesforce test scratch org creation failed.'
                     }
                     username = response.result.username;
                     password = response.result.password;
                     loginURL = response.result.loginUrl;
-                    insurl   = response.result.instanceUrl;
+                    insurl = response.result.instanceUrl;
                     isLatestCreated = true;
                     response = null;
                 }
-            }else{
+            } else {
                 //Use the existing Scratch Org and display login URL UserName and Password at the end so user can able to check it out.
-                if(dev_org.password == null){
-                     rc = command "\"${toolbelt}\" force:user:password:generate -u ${dev_org.alias}  ";
+                if (dev_org.password == null) {
+                    rc = command "\"${toolbelt}\" force:user:password:generate -u ${dev_org.alias}  ";
                 }
                 response = commandOutput "\"${toolbelt}\" force:user:display -u scratch_org_dev --json";
                 username = response.result.username;
                 password = response.result.password;
                 loginURL = response.result.loginUrl;
-                insurl   = response.result.instanceUrl;
+                insurl = response.result.instanceUrl;
                 println "isLatestCreated scratch org :${isLatestCreated}";
-                if(isLatestCreated == false){
+                if (isLatestCreated == false) {
                     //rc = command "\"${toolbelt}\" force:auth:logout -u scratch_org_dev -p"
                     // rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl \"${loginURL}\" --clientid ${SF_CONSUMER_KEY} --username \"${username}\" --jwtkeyfile \"${jwt_key_file}\" --setalias scratch_org_dev";
                     // if (rc != 0) {
@@ -106,7 +105,6 @@ node {
                     // }
                 }
             }
-
 
             /*Stage 3 Push Source Code to Scratch Org*/
             stage('Push To Test Scratch Org') {
@@ -129,14 +127,13 @@ node {
             println "scratch org password     : ${password}";
             println "scratch org loginURL     : ${loginURL}";
             println "scratch org instanceUrl  : ${insurl}";
-			
-			
+
             /*Stage 5 Execute Selenium Automation Suite*/
-            stage('Execute Selenium Test Cases'){
+            stage('Execute Selenium Test Cases') {
                 rc = build job: 'SeleniumTestNew', parameters: [string(name: 'URL_Name', value: "${insurl}"), string(name: 'USER_NAME_VALID', value: "${username}"), string(name: 'PASSWORD_VALID', value: "${password}")];
-            }	
-		}
-	}
+            }
+        }
+    }
 }
 
 def command(script) {
@@ -147,18 +144,16 @@ def command(script) {
     }
 }
 
-
-
 def commandOutput(script) {
     if (isUnix()) {
-        rmsg =  sh(returnStdout: true, script: script);
+        rmsg = sh(returnStdout: true, script: script);
     } else {
-        rmsg =  bat(returnStdout: true, script: script);
+        rmsg = bat(returnStdout: true, script: script);
         rmsg = rmsg.readLines().drop(1).join(" ");
     }
     def index = rmsg.indexOf('--json') + 6;
-    def len   = rmsg.length();
-    def json  = rmsg.substring(index,len);
+    def len = rmsg.length();
+    def json = rmsg.substring(index, len);
     def jsonSlurper = new JsonSlurperClassic();
     def response = jsonSlurper.parseText(json);
     return response;
