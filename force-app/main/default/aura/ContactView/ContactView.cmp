@@ -13,6 +13,9 @@
           <div class="slds-truncate" title="Name">Name</div>
         </th>
         <th class="" scope="col">
+          <div class="slds-truncate" title="Account Name">Account Name</div>
+        </th>
+        <th class="" scope="col">
           <div class="slds-truncate" title="Title">Title</div>
         </th>
         <th class="" scope="col">
@@ -31,6 +34,12 @@
         <tr class="slds-hint-parent">
           <td data-label="Name">
             <div class="slds-truncate" title="{!con.Name}">{!con.Name}</div>
+          </td>
+
+          <td data-label="Account Name">
+            <div class="slds-truncate" title="{!con.Account.Name}">
+              {!con.Account.Name}
+            </div>
           </td>
           <td data-label="Title">
             <div class="slds-truncate" title="{!con.Title}">{!con.Title}</div>
