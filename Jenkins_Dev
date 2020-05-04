@@ -96,6 +96,7 @@ node {
                 loginURL = response.result.loginUrl;
                 insurl   = response.result.instanceUrl;
 
+                rc = command "\"${toolbelt}\" force:auth:logout -u scratch_org_dev -p"
                 rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${insurl} --clientid ${SF_CONSUMER_KEY} --username ${username} --jwtkeyfile \"${jwt_key_file}\" --setalias scratch_org_dev";
                 if (rc != 0) {
                     error 'Salesforce dev hub org authorization failed.'
