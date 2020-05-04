@@ -71,6 +71,7 @@ node {
                         error 'Unable to delete the Scratch Org.'
                     }
                 }
+                dev_org = null;
             }
             def isLatestCreated = false;
 
@@ -134,7 +135,7 @@ node {
             println "scratch org password     : ${password}";
             println "scratch org loginURL     : ${loginURL}";
             println "scratch org instanceUrl  : ${insurl}";
-    
+
         }
     }
 }
