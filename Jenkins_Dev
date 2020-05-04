@@ -38,7 +38,7 @@ node {
                     error 'Salesforce dev hub org authorization failed.'
                 }
 
-                rc = command "\"${toolbelt}\" force:org:list";
+                rc = command "\"${toolbelt}\" force:org:list --all";
 
                 response = commandOutput "\"${toolbelt}\" force:org:list --json"
             }
@@ -98,11 +98,11 @@ node {
                 insurl = response.result.instanceUrl;
                 println "isLatestCreated scratch org :${isLatestCreated}";
                 if (isLatestCreated == false) {
-                    //rc = command "\"${toolbelt}\" force:auth:logout -u scratch_org_dev -p"
-                    // rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl \"${loginURL}\" --clientid ${SF_CONSUMER_KEY} --username \"${username}\" --jwtkeyfile \"${jwt_key_file}\" --setalias scratch_org_dev";
-                    // if (rc != 0) {
-                    //     error 'Salesforce scratch org authorization failed.'
-                    // }
+                     rc = command "\"${toolbelt}\" force:auth:logout -u scratch_org_dev -p"
+                     rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl \"${loginURL}\" --clientid ${SF_CONSUMER_KEY} --username \"${username}\" --jwtkeyfile \"${jwt_key_file}\" --setalias scratch_org_dev";
+                     if (rc != 0) {
+                         error 'Salesforce scratch org authorization failed.'
+                     }
                 }
             }
 

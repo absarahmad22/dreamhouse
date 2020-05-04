@@ -1,42 +1,53 @@
-<aura:component controller="ContactController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
-    <aura:handler name="init" value="{!this}" action="{!c.loadInfo}" />
-    <aura:attribute name="contacts" type="contact[]" />
-    
-    <table class="slds-table slds-table_cell-buffer slds-table_bordered">
-        <thead>
-            <tr class="slds-line-height_reset">
-                <th class="" scope="col">
-                    <div class="slds-truncate" title="Name">Name</div>
-                </th>
-                <th class="" scope="col">
-                    <div class="slds-truncate" title="Title">Title</div>
-                </th>
-                <th class="" scope="col">
-                    <div class="slds-truncate" title="Phone">Phone</div>
-                </th>
-                <th class="" scope="col">
-                    <div class="slds-truncate" title="Email">Email</div>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <aura:iteration items="{!v.contacts}" var="con">
-                <tr class="slds-hint-parent">
-                    <td data-label="Name">
-                        <div class="slds-truncate" title="{!con.Name}">{!con.Name}</div>
-                    </td>
-                    <td data-label="Title">
-                        <div class="slds-truncate" title="{!con.Title}">{!con.Title}</div>
-                    </td>
-                    <td data-label="Phone">
-                        <div class="slds-truncate" title="{!con.Phone}">{!con.Phone}</div>
-                    </td>
-                    <td data-label="Email">
-                        <div class="slds-truncate" title="{!con.Email}">{!con.Email}</div>
-                    </td>
-                </tr>
-            </aura:iteration>
-        </tbody>
-    </table>
-    
+<aura:component
+  controller="ContactController"
+  implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId"
+  access="global"
+>
+  <aura:handler name="init" value="{!this}" action="{!c.loadInfo}" />
+  <aura:attribute name="contacts" type="contact[]" />
+
+  <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+    <thead>
+      <tr class="slds-line-height_reset">
+        <th class="" scope="col">
+          <div class="slds-truncate" title="Name">Name</div>
+        </th>
+        <th class="" scope="col">
+          <div class="slds-truncate" title="Title">Title</div>
+        </th>
+        <th class="" scope="col">
+          <div class="slds-truncate" title="Phone">Phone</div>
+        </th>
+        <th class="" scope="col">
+          <div class="slds-truncate" title="Email">Email</div>
+        </th>
+        <th class="" scope="col">
+          <div class="slds-truncate" title="Level">Level</div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <aura:iteration items="{!v.contacts}" var="con">
+        <tr class="slds-hint-parent">
+          <td data-label="Name">
+            <div class="slds-truncate" title="{!con.Name}">{!con.Name}</div>
+          </td>
+          <td data-label="Title">
+            <div class="slds-truncate" title="{!con.Title}">{!con.Title}</div>
+          </td>
+          <td data-label="Phone">
+            <div class="slds-truncate" title="{!con.Phone}">{!con.Phone}</div>
+          </td>
+          <td data-label="Email">
+            <div class="slds-truncate" title="{!con.Email}">{!con.Email}</div>
+          </td>
+          <td data-label="Level__c">
+            <div class="slds-truncate" title="{!con.Level__c}">
+              {!con.Level__c}
+            </div>
+          </td>
+        </tr>
+      </aura:iteration>
+    </tbody>
+  </table>
 </aura:component>
