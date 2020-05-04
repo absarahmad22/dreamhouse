@@ -3,20 +3,21 @@
 import groovy.json.JsonSlurperClassic
 
 node {
-	def SF_CONSUMER_KEY          = "3MVG97quAmFZJfVzfedLY.zgYh_Yrp8MdbXs9.BDkKlhP9.2klfm00TCOcu.Fk7zmfucTFRxj0qyUc3XbF3PB";         
-	def SF_USERNAME              = "mydevcopy@gmail.com";           
-	def SERVER_KEY_CREDENTALS_ID = "6c8daa18-bf91-4083-9f4e-459b1c98f0d0";
-	def SF_INSTANCE_URL          = "https://login.salesforce.com";        
+	def SF_CONSUMER_KEY          = env.SF_CONSUMER_KEY_DEV;
+	def SF_USERNAME              = env.SF_USERNAME_DEV;
+	def SERVER_KEY_CREDENTALS_ID = env.SERVER_KEY_CREDENTALS_ID_DEV;
+	def SF_INSTANCE_URL          = env.SF_INSTANCE_URL_DEV;
 	def TEST_LEVEL='RunLocalTests'
+     
 
-	def toolbelt = tool 'toolbelt'
+	def toolbelt = tool 'toolbelt';
 
     // -------------------------------------------------------------------------
     // Check out code from source control.
     // -------------------------------------------------------------------------
 
 	stage('checkout source') {
-		checkout scm
+		checkout scm;
 	}
 
 
