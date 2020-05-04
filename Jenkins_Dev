@@ -66,6 +66,7 @@ node {
             def insurl;
 
             println "scratch org dev org : ${dev_org}";
+            def isLatestCreated = false;
 
             if(dev_org == null){
                 //create a Scratch Org
@@ -83,6 +84,7 @@ node {
                     password = response.result.password;
                     loginURL = response.result.loginUrl;
                     insurl   = response.result.instanceUrl;
+                    isLatestCreated = true;
                     response = null;
                 }
             }else{
@@ -95,12 +97,14 @@ node {
                 password = response.result.password;
                 loginURL = response.result.loginUrl;
                 insurl   = response.result.instanceUrl;
-
-                // rc = command "\"${toolbelt}\" force:auth:logout -u scratch_org_dev -p"
-                // rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${insurl} --clientid ${SF_CONSUMER_KEY} --username ${username} --jwtkeyfile \"${jwt_key_file}\" --setalias scratch_org_dev";
-                // if (rc != 0) {
-                //     error 'Salesforce dev hub org authorization failed.'
-                // }
+                println "isLatestCreated scratch org :${isLatestCreated}";
+                if(isLatestCreated == false){
+                    rc = command "\"${toolbelt}\" force:auth:logout -u scratch_org_dev -p"
+                    rc = command "\"${toolbelt}\" force:auth:jwt:grant --instanceurl ${insurl} --clientid ${SF_CONSUMER_KEY} --username ${username} --jwtkeyfile \"${jwt_key_file}\" --setalias scratch_org_dev";
+                    if (rc != 0) {
+                        error 'Salesforce scratch org authorization failed.'
+                    }
+                }
             }
 
 
